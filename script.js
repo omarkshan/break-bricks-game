@@ -2,7 +2,10 @@ const grid = document.querySelector(".grid");
 const gridWidth = document.querySelector(".grid").clientWidth;
 const gridHeight = document.querySelector(".grid").clientHeight;
 
+let score = 0;
 const scoreDisplay = document.querySelector("#score");
+scoreDisplay.innerHTML = score;
+
 let levelMultiplier = 1;
 const blocksPerLvl = 8;
 
@@ -122,12 +125,38 @@ function moveBall() {
   ballCurrentPosition[1] += _yBall;
   drawObject(ball, ballCurrentPosition);
   onGridCollide();
+  onBlockCollide();
   isGameOver();
 }
 
 timerId = setInterval(moveBall, 10);
 
-// Check for Collisions
+// Check for Block Collisions
+function onBlockCollide() {
+  let isBetweenBlock;
+  let yBlock;
+  for (let i = 0; i < blocks.length; i++) {
+    isBetweenBlock =
+      ballCurrentPosition[0] > blocks[i].bottomLeft[0] &&
+      ballCurrentPosition[0] < blocks[i].bottomRight[0];
+    yBlock =
+      ballCurrentPosition[1] + ballDiameter > blocks[i].bottomLeft[1] &&
+      ballCurrentPosition[1] < blocks[i].topLeft[1];
+
+    if (isBetweenBlock && yBlock) {
+      const allBlocks = Array.from(document.querySelectorAll(".block"));
+      allBlocks[i].classList.remove("block");
+      blocks.splice(i, 1);
+      changeDirection();
+      score++;
+      scoreDisplay.innerHTML = score;
+    }
+  }
+}
+
+// Check for User Collisions
+
+// Check for Grid Collisions
 function onGridCollide() {
   // Collide conditions
   let xRightCollide = ballCurrentPosition[0] >= gridWidth - ballDiameter;
