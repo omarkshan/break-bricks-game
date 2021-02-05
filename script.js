@@ -2,12 +2,19 @@ const grid = document.querySelector(".grid");
 const gridWidth = document.querySelector(".grid").clientWidth;
 const gridHeight = document.querySelector(".grid").clientHeight;
 
+let isGameStart = false;
+let isPassed = false;
+
 let score = 0;
 const scoreDisplay = document.querySelector("#score");
+const reloadDisplay = document.querySelector("#reload");
 scoreDisplay.innerHTML = score;
 
 let levelMultiplier = 1;
-const blocksPerLvl = 8;
+let displayLevel = document.querySelector("#level");
+let currentLevel = Number.parseInt(displayLevel.innerHTML);
+const blocksPerLvl = 1;
+let userSpeed = 20;
 
 let timerId;
 
@@ -46,6 +53,7 @@ function populateBlocks() {
     }
   }
   console.log(blocks);
+  console.log(`Current Level: ${currentLevel}`);
 }
 
 // Draws all blocks
@@ -75,24 +83,59 @@ user.classList.add("user");
 grid.appendChild(user);
 
 const userWidth = document.querySelector(".user").clientWidth;
+const userHeight = document.querySelector(".user").clientHeight;
 
 const userStart = [gridHeight - 70, 10];
 let userCurrentPosition = userStart;
 
 drawObject(user, userCurrentPosition);
 
+function game(e) {
+  switch (e.keyCode) {
+    case 32:
+      isGameStart = !isGameStart;
+      if (isGameStart) {
+        document.addEventListener("keydown", moveUser);
+        timerId = setInterval(moveBall, 10);
+        console.log("Game Started");
+      } else {
+        clearInterval(timerId);
+        document.removeEventListener("keydown", moveUser);
+        console.log("Game Paused");
+      }
+      break;
+    case 13:
+      if (isPassed) {
+        currentLevel += 1;
+        displayLevel.innerHTML = currentLevel;
+        levelMultiplier = currentLevel;
+        populateBlocks();
+        addBlocks();
+        drawObject(ball, ballStart);
+        drawObject(user, userStart);
+        document.addEventListener("keydown", moveUser);
+        timerId = setInterval(moveBall, 10);
+        isPassed = false;
+      }
+      break;
+
+    default:
+      break;
+  }
+}
+
 // User movement
 function moveUser(e) {
   switch (e.key) {
     case "ArrowLeft":
       if (userCurrentPosition[0] > 5) {
-        userCurrentPosition[0] -= 5;
+        userCurrentPosition[0] -= userSpeed;
         drawObject(user, userCurrentPosition);
       }
       break;
     case "ArrowRight":
       if (userCurrentPosition[0] < gridWidth - (userWidth + 5)) {
-        userCurrentPosition[0] += 5;
+        userCurrentPosition[0] += userSpeed;
         drawObject(user, userCurrentPosition);
       }
     default:
@@ -101,6 +144,7 @@ function moveUser(e) {
 }
 
 document.addEventListener("keydown", moveUser);
+document.addEventListener("keydown", game);
 
 /// Ball
 const ballStart = [gridWidth / 2, gridHeight / 10];
@@ -126,7 +170,9 @@ function moveBall() {
   drawObject(ball, ballCurrentPosition);
   onGridCollide();
   onBlockCollide();
+  onUserCollide();
   isGameOver();
+  isWin();
 }
 
 timerId = setInterval(moveBall, 10);
@@ -155,6 +201,18 @@ function onBlockCollide() {
 }
 
 // Check for User Collisions
+function onUserCollide() {
+  let widthCondition =
+    ballCurrentPosition[0] > userCurrentPosition[0] &&
+    ballCurrentPosition[0] < userCurrentPosition[0] + userWidth;
+  let heightCondition =
+    ballCurrentPosition[1] > userCurrentPosition[1] &&
+    ballCurrentPosition[1] < userCurrentPosition[1] + userHeight;
+
+  if (widthCondition && heightCondition) {
+    changeDirection();
+  }
+}
 
 // Check for Grid Collisions
 function onGridCollide() {
@@ -169,6 +227,16 @@ function onGridCollide() {
   }
 }
 
+function isWin() {
+  // Check if Won
+  if (blocks.length === 0) {
+    scoreDisplay.innerHTML = "You Won \\OoO/";
+    clearInterval(timerId);
+    document.removeEventListener("keydown", moveUser);
+    isPassed = true;
+  }
+}
+
 function isGameOver() {
   let yBottomCollide = ballCurrentPosition[1] <= 0;
 
@@ -179,6 +247,8 @@ function isGameOver() {
     user.style.transform = "rotate(45deg)";
     user.style.transition = "all 0.5s";
     document.removeEventListener("keydown", moveUser);
+    reloadDisplay.innerHTML = "RELOAD THE PAGE TO RESTART THE GAME..";
+    grid.style.borderBottomStyle = "dashed";
   }
 }
 
@@ -199,4 +269,9 @@ function changeDirection() {
     _xBall = 2;
     return;
   }
+}
+
+function resetGame() {
+  document.addEventListener("keydown", moveUser);
+  timerId = setInterval(moveBall, 10);
 }
