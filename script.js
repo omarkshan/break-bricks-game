@@ -2,7 +2,11 @@ const grid = document.querySelector(".grid");
 const gridWidth = document.querySelector(".grid").clientWidth;
 const gridHeight = document.querySelector(".grid").clientHeight;
 
-const levelMultiplier = 1;
+const scoreDisplay = document.querySelector("#score");
+let levelMultiplier = 1;
+const blocksPerLvl = 8;
+
+let timerId;
 
 console.log(gridWidth);
 console.log(gridHeight);
@@ -26,7 +30,7 @@ function populateBlocks() {
   let rowCount = 0;
   let widthTracker = 10;
   let heightTracker = gridHeight - 30;
-  for (let i = 0; i < levelMultiplier * 16; i++) {
+  for (let i = 0; i < levelMultiplier * blocksPerLvl; i++) {
     blocks.push(new Block(widthTracker, heightTracker));
     console.log("Block Added");
     if (widthTracker + blockWidth + 50 < gridWidth) {
@@ -54,3 +58,116 @@ function addBlocks() {
 
 populateBlocks();
 addBlocks();
+
+// Draws object
+function drawObject(object, currentPos) {
+  object.style.left = currentPos[0] + "px";
+  object.style.bottom = currentPos[1] + "px";
+}
+
+/// User
+
+const user = document.createElement("div");
+user.classList.add("user");
+grid.appendChild(user);
+
+const userWidth = document.querySelector(".user").clientWidth;
+
+const userStart = [gridHeight - 70, 10];
+let userCurrentPosition = userStart;
+
+drawObject(user, userCurrentPosition);
+
+// User movement
+function moveUser(e) {
+  switch (e.key) {
+    case "ArrowLeft":
+      if (userCurrentPosition[0] > 5) {
+        userCurrentPosition[0] -= 5;
+        drawObject(user, userCurrentPosition);
+      }
+      break;
+    case "ArrowRight":
+      if (userCurrentPosition[0] < gridWidth - (userWidth + 5)) {
+        userCurrentPosition[0] += 5;
+        drawObject(user, userCurrentPosition);
+      }
+    default:
+      break;
+  }
+}
+
+document.addEventListener("keydown", moveUser);
+
+/// Ball
+const ballStart = [gridWidth / 2, gridHeight / 10];
+let ballCurrentPosition = ballStart;
+
+const ball = document.createElement("div");
+ball.classList.add("ball");
+ball.style.left = ballCurrentPosition[0] + "px";
+ball.style.bottom = ballCurrentPosition[1] + "px";
+grid.appendChild(ball);
+
+const ballDiameter = ball.offsetWidth;
+console.log(ballDiameter);
+let _xBall = -2;
+let _yBall = 2;
+
+drawObject(ball, ballCurrentPosition);
+
+// Ball movement
+function moveBall() {
+  ballCurrentPosition[0] += _xBall;
+  ballCurrentPosition[1] += _yBall;
+  drawObject(ball, ballCurrentPosition);
+  onGridCollide();
+  isGameOver();
+}
+
+timerId = setInterval(moveBall, 10);
+
+// Check for Collisions
+function onGridCollide() {
+  // Collide conditions
+  let xRightCollide = ballCurrentPosition[0] >= gridWidth - ballDiameter;
+  let yTopCollide = ballCurrentPosition[1] >= gridHeight - ballDiameter;
+  let xLeftCollide = ballCurrentPosition[0] <= 0;
+
+  // Check wall collisions
+  if (xRightCollide || yTopCollide || xLeftCollide) {
+    changeDirection();
+  }
+}
+
+function isGameOver() {
+  let yBottomCollide = ballCurrentPosition[1] <= 0;
+
+  // Check if Game Over
+  if (yBottomCollide) {
+    clearInterval(timerId);
+    scoreDisplay.innerHTML = "Oops.. You Lose X_X";
+    user.style.transform = "rotate(45deg)";
+    user.style.transition = "all 0.5s";
+    document.removeEventListener("keydown", moveUser);
+  }
+}
+
+function changeDirection() {
+  if (_xBall === 2 && _yBall === 2) {
+    _yBall = -2;
+    return;
+  }
+  if (_xBall === 2 && _yBall === -2) {
+    _xBall = -2;
+    return;
+  }
+  if (_xBall === -2 && _yBall === -2) {
+    _yBall = 2;
+    return;
+  }
+  if (_xBall === -2 && _yBall === 2) {
+    _xBall = 2;
+    return;
+  }
+}

@@ -1,13 +1,51 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #000000;
+  overflow: hidden;
+}
+
 .grid {
   position: absolute;
   width: 600px;
   height: 300px;
-  border: solid #000000 1px;
+  border: solid #ff7f50 1px;
+  margin-top: 80px;
 }
 
 .block {
   position: absolute;
   width: 100px;
   height: 20px;
-  background-color: #0000ff;
+  border-bottom: solid 3px #ff6347;
+  background-color: #ff7f50;
+}
+
+.user {
+  position: absolute;
+  width: 100px;
+  height: 10px;
+  border-top: solid 2px #dc143c;
+  background-color: #ff7f50;
+}
+
+.ball {
+  position: absolute;
+  width: 13px;
+  height: 13px;
+  border: solid 2px #dc143c;
+  border-radius: 10px;
+  background-color: #ff6347;
+}
+
+#dashboard {
+  border-bottom: solid 3px #ff6347;
+  max-width: 25%;
+  margin: 10px;
+  padding: 10px;
+  color: #ff6347;
 }
