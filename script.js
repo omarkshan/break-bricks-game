@@ -13,7 +13,7 @@ scoreDisplay.innerHTML = score;
 let levelMultiplier = 1;
 let displayLevel = document.querySelector("#level");
 let currentLevel = Number.parseInt(displayLevel.innerHTML);
-const blocksPerLvl = 1;
+const blocksPerLvl = 8;
 let userSpeed = 20;
 
 let timerId;
