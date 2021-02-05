@@ -243,11 +243,11 @@ function isGameOver() {
   // Check if Game Over
   if (yBottomCollide) {
     clearInterval(timerId);
-    scoreDisplay.innerHTML = "Oops.. You Lose X_X";
     user.style.transform = "rotate(45deg)";
     user.style.transition = "all 0.5s";
     document.removeEventListener("keydown", moveUser);
-    reloadDisplay.innerHTML = "RELOAD THE PAGE TO RESTART THE GAME..";
+    reloadDisplay.innerHTML =
+      "Oops.. You Lose X_X<br>RELOAD THE PAGE TO RESTART THE GAME..";
     grid.style.borderBottomStyle = "dashed";
   }
 }
